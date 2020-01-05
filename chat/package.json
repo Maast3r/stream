@@ -1,0 +1,30 @@
+{
+  "name": "mixer-stuff",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint -c tslint.json -p tsconfig.json --fix",
+    "start": "ts-node-dev ./src/index.ts"
+  },
+  "author": "maast3r",
+  "license": "ISC",
+  "dependencies": {
+    "@mixer/client-node": "^3.5.0",
+    "@mixer/shortcode-oauth": "^1.1.0",
+    "lodash": "^4.17.15",
+    "typescript": "next",
+    "ws": "^7.2.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.149",
+    "@types/request": "^2.48.4",
+    "@types/ws": "^6.0.4",
+    "bufferutil": "^4.0.1",
+    "ts-node": "^8.5.4",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^5.20.1",
+    "utf-8-validate": "^5.0.2"
+  }
+}
