@@ -98,10 +98,13 @@ function createChatSocket(
 }
 
 function handleUserJoin(data: any) {
-  const username = _.lowerCase(data.username).replace(/\s/g,'');
+  const username = _.lowerCase(data.username).replace(/\s/g, '');
   console.log('User Joineddddddd ============= ', username);
   if (username === 'gameranma') {
-    // socket.call('msg', [`Yo ${data.username}! I'm testing a chat bot. Here are some commands to try [!whatsgood, !costream doomerdinger, !kill costream].`]);
+    socket.call('msg', [
+      `Yo ${data.username}! I'm testing a chat bot. Here are some commands to try` +
+      '[!whatsgood, !costream doomerdinger, !kill costream].'
+    ]);
   } else if (username === 'baseballlover723') {
     socket.call('msg', [`Yo ${data.username}! Welcome to the better stream. Take some notes.`]);
   }
