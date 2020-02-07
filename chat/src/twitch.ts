@@ -1,13 +1,10 @@
-// const tmi = require('tmi.js');
-import express from 'express';
+import _ from 'lodash';
 import fetch from 'node-fetch';
 import tmi from 'tmi.js';
 
-const app = express();
-const appPort = 8080;
-const host = `http://localhost:${appPort}`;
+import * as SpotifyThing from './spotify';
 
-let token: string;
+export let token: string;
 let userId: string;
 
 // Define configuration options
@@ -21,10 +18,11 @@ const opts = {
   }
 };
 // Create a client with our options
+export const clientId = process.env.TWITCH_CLIENT_ID;
+export const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 const client = new (tmi.client as any)(opts);
-const clientId = process.env.TWITCH_CLIENT_ID;
-const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 const endpoint = 'https://api.twitch.tv/helix';
+const scopes = 'clips:edit';
 
 // Register our event handlers (defined below)
 client.on('message', onMessageHandler);
@@ -35,11 +33,11 @@ client.on('join', onJoinHandler);
 client.connect();
 
 // Called every time a message comes in
-function onMessageHandler(channel: string, userstate: any, msg: string , self: boolean) {
+function onMessageHandler(channel: string, userstate: any, message: string , self: boolean) {
   if (self) { return; } // Ignore messages from the bot
 
   // Remove whitespace from chat message
-  const commandName = msg.trim();
+  const commandName = _.trim(message);
 
   // If the command is known, let's execute it
   if (commandName === '!dice') {
@@ -48,8 +46,14 @@ function onMessageHandler(channel: string, userstate: any, msg: string , self: b
   } else if (commandName === '!clipit') {
     createClip(channel);
     console.log(`* Executed ${commandName} command`);
+  } else if (commandName === '!currentsong') {
+    SpotifyThing.getCurrentTrack().then(({ artists, name, url }) => {
+      client.say(channel, `Currently playing: ${name} by ${artists} - ${url}`);
+    });
+    console.log(`* Executed ${commandName} command`);
   }
 }
+
 function rollDice() {
   const sides = 6;
   return Math.floor(Math.random() * sides) + 1;
@@ -73,63 +77,44 @@ function createClip(channel: string) {
   });
 }
 
-// Called every time the bot connects to Twitch chat
 function onConnectedHandler(address: string, port: string) {
-  console.log(`* Connected to ${address}:${port}`);
+  console.log(`* Chatbot connected to ${address}:${port}`);
 }
 
 function onJoinHandler(channel: string, username: string, self: boolean) {
   if (!self && username !== 'maast3r') {
-    client.say(channel, `Welcome ${username} to the big boi club!`); 
+    client.say(channel, `Welcome ${username} to the big boi club!`);
     console.log(`* ${username} has joined the channel`);
   }
 }
 
-function authenticate() {
+function authorize() {
   return fetch(
     'https://id.twitch.tv/oauth2/authorize' +
     `?client_id=${clientId}` +
-    `&redirect_uri=${host}/authenticate` +
+    '&redirect_uri=http://localhost:3000/authorize-twitch' +
     '&response_type=code' +
-    '&scope=clips:edit'
+    `&scope=${scopes}`
   ).then((response: any) => {
-    console.log(response);
+    console.log(response.url);
   });
 }
 
-function getUserId() {
+export function getUserId() {
   return fetch(`${endpoint}/users?login=maast3r`, {
     headers: getRequestHeaders()
   }).then((response: any) =>
     response.json()
   ).then((response: any) => {
     userId = response.data[0].id;
-    console.log('* Bot has been authorized')
+    console.log('* Chat bot has been authorized');
     return userId;
   });
 }
 
-app.listen(appPort, () => {
-  console.log(`server started at ${host}`);
-});
+export function setToken(newToken: string) {
+  token = newToken;
+  return token;
+}
 
-app.get('/authenticate', (request: any, _) => {
-  return fetch(
-    'https://id.twitch.tv/oauth2/token' +
-    `?client_id=${clientId}` +
-    `&client_secret=${clientSecret}` +
-    `&code=${request.query.code}` +
-    '&grant_type=authorization_code' +
-    `&redirect_uri=${host}/oauth`, {
-      method: 'POST'
-    }
-  ).then((response: any) =>
-    response.json()
-  ).then((response: any) => {
-    token = response.access_token;
-
-    return getUserId();
-  });
-});
-
-authenticate();
+authorize();
