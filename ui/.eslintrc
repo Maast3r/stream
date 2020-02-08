@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "airbnb",
+    "plugin:vue/recommended"
+  ],
+  "globals": {
+    "navigator": true,
+    "window": true
+  },
+  "rules": {
+    "import/extensions": ["error", "always", {
+      "js": "never",
+      "vue": "never"
+    }]
+  },
+  "settings": {
+    "import/resolver": "webpack"
+  }
+}
