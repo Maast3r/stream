@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import fetch from 'node-fetch';
+import open from 'open';
 import tmi from 'tmi.js';
 
 import * as SpotifyThing from './spotify';
 
-export let token: string;
+let accessToken: string;
+let refreshToken: string;
 let userId: string;
 
 // Define configuration options
@@ -22,6 +24,7 @@ export const clientId = process.env.TWITCH_CLIENT_ID;
 export const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 const client = new (tmi.client as any)(opts);
 const endpoint = 'https://api.twitch.tv/helix';
+const redirectUri = 'http://localhost:3000/authorize-twitch';
 const scopes = 'clips:edit';
 
 // Register our event handlers (defined below)
@@ -47,7 +50,7 @@ function onMessageHandler(channel: string, userstate: any, message: string , sel
     createClip(channel);
     console.log(`* Executed ${commandName} command`);
   } else if (commandName === '!currentsong') {
-    SpotifyThing.getCurrentTrack().then(({ artists, name, url }) => {
+    SpotifyThing.getCurrentTrack().then(({ artists, name, url }: any) => {
       client.say(channel, `Currently playing: ${name} by ${artists} - ${url}`);
     });
     console.log(`* Executed ${commandName} command`);
@@ -61,7 +64,7 @@ function rollDice() {
 
 function getRequestHeaders() {
   return {
-    'Authorization': `Bearer ${token}`,
+    'Authorization': `Bearer ${accessToken}`,
     'Content-Type': 'application/json'
   };
 }
@@ -92,11 +95,39 @@ function authorize() {
   return fetch(
     'https://id.twitch.tv/oauth2/authorize' +
     `?client_id=${clientId}` +
-    '&redirect_uri=http://localhost:3000/authorize-twitch' +
+    `&redirect_uri=${redirectUri}` +
     '&response_type=code' +
     `&scope=${scopes}`
   ).then((response: any) => {
     console.log(response.url);
+    // I honestly don't know why i have to do this. response.url spits out
+    // exactly what I need, but when I try to run `open(response.url)`, the
+    // resulting webpage has no request queries. Therefore I am builindg my
+    // own version of response.url that works.
+    // const builtUri = 'https://passport.twitch.tv/sessions/new' +
+    //   `?client_id=${clientId}` +
+    //   '%26oauth_request=false' +
+    //   `&redirect_uri=${redirectUri}` +
+    //   '&response_type=code' +
+    //   `&scope=${scopes}` +
+    //   '&username=' +
+    //   '&redirect_path=' +
+    //     'https%3A%2F%2Fid.twitch.tv%2Foauth2%2Fauthorize' +
+    //     `%3Fclient_id%3D${clientId}` +
+    //     '%26redirect_uri%3D' +
+    //       `http%3A%2F%2Flocalhost%3A3000%2Fauthorize-twitch` +
+    //       '%26response_type%3Dcode' +
+    //       `%26scope%3D${_.replace(scopes, ':', '%3A')}`;
+    // // console.log(builtUri);
+    // // console.log("\n");
+    // // open(builtUri);
+    // const a = "https://www.google.com/search?q=test&as=t" + encodeURIComponent('&oq=test');
+    // console.log(a);
+    // console.log("\n");
+    // open(a);
+    // const b = encodeURI(response.url);
+    // console.log(b);
+    // open(b);
   });
 }
 
@@ -112,9 +143,9 @@ export function getUserId() {
   });
 }
 
-export function setToken(newToken: string) {
-  token = newToken;
-  return token;
+export function setTokens(newAccessToken: string, newRefreshToken: string) {
+  accessToken = newAccessToken;
+  refreshToken = newRefreshToken;
 }
 
 authorize();

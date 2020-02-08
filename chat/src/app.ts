@@ -14,6 +14,7 @@ app.listen(appPort, () => {
 });
 
 app.get('/authorize-twitch', (request: any, controllerResponse: any) => {
+  console.log('ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
   fetch(
     'https://id.twitch.tv/oauth2/token' +
     `?client_id=${TwitchThing.clientId}` +
@@ -27,7 +28,8 @@ app.get('/authorize-twitch', (request: any, controllerResponse: any) => {
   ).then((response: any) =>
     response.json()
   ).then((response: any) => {
-    TwitchThing.setToken(response.access_token);
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    TwitchThing.setTokens(response.access_token, response.refresh_token);
 
     return TwitchThing.getUserId();
   });
@@ -52,18 +54,16 @@ app.get('/authorize-spotify', (request: any, controllerResponse: any) => {
       method: 'POST',
       body: formBody
     }
+  ).then((response: any) =>
+    response.json()
   ).then((response: any) => {
-    console.log(response);
-    return response.json();
-  }).then((response: any) => {
-    console.log(response);
-    SpotifyThing.setToken(response.access_token);
+    console.log('* Spotify authorized');
+    SpotifyThing.setTokens(response.access_token, response.refresh_token);
   });
 
   controllerResponse.send('GET authorize-spotify');
 });
 
 app.get('/oauth', (_, response: any) => {
-  console.log('asdfasdfaf');
   response.send('o');
 });

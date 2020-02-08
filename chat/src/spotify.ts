@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import fetch from 'node-fetch';
+import open from 'open';
+import URLSearchParams from 'url-search-params';
 
 const endpoint = 'https://api.spotify.com/v1/me';
 const playerEndpoint = `${endpoint}/player`;
@@ -8,17 +10,17 @@ const scopes = 'user-read-currently-playing';
 
 export const clientId = process.env.SPOTIFY_CLIENT_ID;
 export const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-let token: string;
+let accessToken: string;
+let refreshToken: string;
 
 function getRequestHeaders() {
   return {
-    'Authorization': `Bearer ${token}`,
+    'Authorization': `Bearer ${accessToken}`,
     'Content-Type': 'application/json'
   };
 }
 
-export function getCurrentTrack() {
-  console.log(token);
+export function getCurrentTrack():any {
   return fetch(`${playerEndpoint}/currently-playing`, {
     headers: getRequestHeaders()
   }).then((response: any) =>
@@ -37,6 +39,31 @@ export function getCurrentTrack() {
       name: response.item.name,
       url: response.item.external_urls.spotify
     };
+  }).catch((error: any) => {
+    console.log(error);
+    return refreshAccessToken().then(getCurrentTrack);
+  });
+}
+
+function refreshAccessToken() {
+  const formBody = new URLSearchParams();
+  formBody.set('client_id', clientId);
+  formBody.set('client_secret', clientSecret);
+  formBody.set('grant_type', 'refresh_token');
+  formBody.set('refresh_token', refreshToken);
+
+  return fetch(
+    'https://accounts.spotify.com/api/token',
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      method: 'POST',
+      body: formBody
+    }
+  ).then((response: any) => {
+    accessToken = response.access_token;
+    console.log('* Spotify access token refreshed');
   });
 }
 
@@ -49,13 +76,13 @@ function authorize() {
     `&scope=${scopes}`
   ).then((response: any) => {
     console.log(response.url);
+    open(response.url);
   });
 }
 
-export function setToken(newToken: string) {
-  token = newToken;
-  console.log(token);
-  return token;
+export function setTokens(newAccessToken: string, newRefreshToken: string) {
+  accessToken = newAccessToken;
+  refreshToken = newRefreshToken;
 }
 
 authorize();
