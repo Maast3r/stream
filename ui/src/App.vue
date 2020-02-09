@@ -11,6 +11,23 @@
   </div>
 </template>
 
+<script>
+  export default {
+    data: () => ({
+      links: [
+        {
+          name: 'Home',
+          to: '/'
+        },
+        {
+          name: 'Bad Link',
+          to: '/random-bad-url'
+        }
+      ]
+    })
+  }
+</script>
+
 <style scoped>
   ul {
     list-style: none;
@@ -28,24 +45,3 @@
     color: #404040;
   }
 </style>
-
-<script>
-  export default {
-    data: () => ({
-      links: [
-        {
-          name: 'Home',
-          to: '/'
-        },
-        {
-          name: 'Page 1',
-          to: '/page-1'
-        },
-        {
-          name: 'Bad Link',
-          to: '/random-bad-url'
-        }
-      ]
-    })
-  }
-</script>

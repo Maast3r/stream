@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import Page1 from './components/Page1';
 import Home from './components/Home';
+import BotLog from './components/BotLog';
 import PageNotFound from './components/PageNotFound';
 
 Vue.use(Router);
@@ -13,11 +13,6 @@ export default new Router({
       path: '/',
       name: 'Home',
       component: Home,
-    },
-    {
-      path: '/page-1',
-      name: 'Page 1',
-      component: Page1,
     },
     {
       path: '**',

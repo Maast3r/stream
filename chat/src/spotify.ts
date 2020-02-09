@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import fetch from 'node-fetch';
-import open from 'open';
 import URLSearchParams from 'url-search-params';
+
+import { eventEmitter } from './app';
 
 const endpoint = 'https://api.spotify.com/v1/me';
 const playerEndpoint = `${endpoint}/player`;
@@ -41,6 +42,7 @@ export function getCurrentTrack():any {
     };
   }).catch((error: any) => {
     console.log(error);
+    eventEmitter.emit('newBotLog', error);
     return refreshAccessToken().then(getCurrentTrack);
   });
 }
@@ -67,22 +69,17 @@ function refreshAccessToken() {
   });
 }
 
-function authorize() {
+export function authorize() {
   return fetch(
     'https://accounts.spotify.com/authorize' +
     `?client_id=${clientId}` +
     '&response_type=code' +
     `&redirect_uri=${redirectUri}` +
     `&scope=${scopes}`
-  ).then((response: any) => {
-    console.log(response.url);
-    open(response.url);
-  });
+  ).then((response: any) => response.url);
 }
 
 export function setTokens(newAccessToken: string, newRefreshToken: string) {
   accessToken = newAccessToken;
   refreshToken = newRefreshToken;
 }
-
-authorize();

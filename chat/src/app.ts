@@ -1,6 +1,9 @@
+import _ from 'lodash';
+import events from 'events';
 import express from 'express';
 import fetch from 'node-fetch';
 import URLSearchParams from 'url-search-params';
+import { Server } from 'ws';
 
 import * as SpotifyThing from './spotify';
 import * as TwitchThing from './twitch';
@@ -8,13 +11,26 @@ import * as TwitchThing from './twitch';
 const app = express();
 const appPort = 3000;
 const host = `http://localhost:${appPort}`;
+const corsWhiteList = ['https://localhost:9000'];
 
-app.listen(appPort, () => {
+const server = app.listen(appPort, () => {
   console.log(`* Server started at ${host}`);
 });
+const websocketServer = new Server({ server });
+
+export const eventEmitter = new events.EventEmitter();
+
+app.use((request: any, response: any, next: any) => {
+  const requestOrigin = request.headers.origin;
+
+  if (_.includes(corsWhiteList, requestOrigin)) {
+    response.header('Access-Control-Allow-Origin', requestOrigin);
+    response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  }
+  next();
+})
 
 app.get('/authorize-twitch', (request: any, controllerResponse: any) => {
-  console.log('ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
   fetch(
     'https://id.twitch.tv/oauth2/token' +
     `?client_id=${TwitchThing.clientId}` +
@@ -28,7 +44,6 @@ app.get('/authorize-twitch', (request: any, controllerResponse: any) => {
   ).then((response: any) =>
     response.json()
   ).then((response: any) => {
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaa');
     TwitchThing.setTokens(response.access_token, response.refresh_token);
 
     return TwitchThing.getUserId();
@@ -57,8 +72,11 @@ app.get('/authorize-spotify', (request: any, controllerResponse: any) => {
   ).then((response: any) =>
     response.json()
   ).then((response: any) => {
-    console.log('* Spotify authorized');
     SpotifyThing.setTokens(response.access_token, response.refresh_token);
+
+    const log = '* Spotify authorized';
+    eventEmitter.emit('newBotLog', log);
+    console.log(log);
   });
 
   controllerResponse.send('GET authorize-spotify');
@@ -67,3 +85,25 @@ app.get('/authorize-spotify', (request: any, controllerResponse: any) => {
 app.get('/oauth', (_, response: any) => {
   response.send('o');
 });
+
+app.get('/twitch', async (request: any, controllerResponse: any) => {
+  controllerResponse.send({ url: await TwitchThing.authorize() });
+});
+
+app.get('/spotify', async (request: any, controllerResponse: any) => {
+  controllerResponse.send({ url: await SpotifyThing.authorize() });
+});
+
+websocketServer.on('connection', (websocket: any) => {
+  eventEmitter.on('newBotLog', (newLog) => {
+    websocket.send(newLog);
+  });
+
+  websocket.on('message', (message: string) => {
+    console.log(`received: ${message}`);
+
+    websocket.send('Hey boi, you connected');
+  });
+});
+
+
