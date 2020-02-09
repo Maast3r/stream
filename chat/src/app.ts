@@ -96,13 +96,19 @@ app.get('/spotify', async (request: any, controllerResponse: any) => {
 
 websocketServer.on('connection', (websocket: any) => {
   eventEmitter.on('newBotLog', (newLog) => {
-    websocket.send(newLog);
+    websocket.send(JSON.stringify({
+      message: newLog,
+      time: new Date().toLocaleTimeString()
+    }));
   });
 
   websocket.on('message', (message: string) => {
     console.log(`received: ${message}`);
 
-    websocket.send('Hey boi, you connected');
+    websocket.send(JSON.stringify({
+      message: 'Hey boi, you connected',
+      time: new Date().toLocaleTimeString()
+    }));
   });
 });
 

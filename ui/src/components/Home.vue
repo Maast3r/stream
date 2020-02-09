@@ -1,9 +1,23 @@
 <template>
-  <div>
-    <h1>Home</h1>
-    <button v-on:click='authorizeExternals'>Authorize Externals</button>
-    <BotLog />
-  </div>
+  <section class='section'>
+    <div class='container'>
+      <div class='tile'>
+        <h1 class='title'>Ma UI</h1>
+        <button class='button is-primary' v-on:click='authorizeExternals'>Authorize Externals</button>
+      </div>
+      <div class='columns'>
+        <div class='column is-one-quarter'>
+          <BotLog />
+        </div>
+        <div class='column'>
+          placeholder
+        </div>
+        <div class='column is-one-half'>
+          placeholder
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
@@ -29,8 +43,7 @@
       }
     },
     methods: {
-      authorizeExternals: function(event) {
-        console.log(event);
+      authorizeExternals: function() {
         RequestManager.authorizeSpotify();
         RequestManager.authorizeTwitch();
       }
@@ -40,6 +53,6 @@
 
 <style scoped>
   h1 {
-    color: blue
+    color: purple; 
   }
 </style>

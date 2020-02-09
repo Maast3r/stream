@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import Home from './components/Home';
-import BotLog from './components/BotLog';
 import PageNotFound from './components/PageNotFound';
 
 Vue.use(Router);

@@ -5,6 +5,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = (env, argv) => ({
@@ -33,8 +35,14 @@ module.exports = (env, argv) => ({
       {
         test: /\.s?css$/,
         use: [
-          'vue-style-loader',
-          'css-loader'
+          process.env.NODE_ENV !== 'production' ? 'vue-style-loader' : MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true
+            }
+          }
         ],
         exclude: /\.module\.css$/
       }
@@ -69,6 +77,9 @@ module.exports = (env, argv) => ({
       // and not allow any straggling "old" SWs to hang around
       clientsClaim: true,
       skipWaiting: true
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'css/index.css'
     })
   ],
 
@@ -90,7 +101,7 @@ module.exports = (env, argv) => ({
       }
     },
     runtimeChunk: {
-      name: entrypoint => `runtime~${entrypoint.name}`
+      name: (entrypoint) => `runtime~${entrypoint.name}`
     },
     mangleWasmImports: true,
     removeAvailableModules: true,

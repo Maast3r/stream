@@ -2,6 +2,8 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 
+require('./styles/index.scss');
+
 Vue.config.productionTip = false;
 
 if ('serviceWorker' in navigator) {

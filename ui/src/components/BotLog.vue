@@ -1,7 +1,14 @@
 <template>
-  <div>
-    <div>bot log</div>
-    <Log v-for='(log, index) in logs' v-bind:key='log + index' v-bind:message='log' />
+  <div id='bot-log-container' class='tile is-vertical'>
+    <h6 class='subtitle'>Bot Log</h6>
+    <div id='bot-log-chat-container' class='container'>
+      <Log
+        v-for='(log, index) in logs'
+        v-bind:key='log + index'
+        v-bind:message='log.message'
+        v-bind:time='log.time'
+      />
+    </div>
   </div>
 </template>
 
@@ -16,7 +23,7 @@
   });
 
   socket.addEventListener('message', function (event) {
-    logs.push(event.data);
+    logs.push(JSON.parse(event.data));
   });
 
   const BotLog = {
@@ -34,4 +41,9 @@
 </script>
 
 <style scoped>
+#bot-log-chat-container {
+  border: 1px solid;
+  height: 600px;
+  overflow-y: scroll;
+}
 </style>
