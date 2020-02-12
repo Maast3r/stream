@@ -7,3 +7,5 @@ todo
 - create manual service worker
 - deploy to firebase (done, not automated yet)
 - pass 100% pwa
+- fix memory leak of event emitter listeners in chat server
+- fix spotify refresh token logic

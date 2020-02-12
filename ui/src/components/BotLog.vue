@@ -34,6 +34,11 @@
       return {
         logs
       }
+    },
+    // Autoscroll to the bottom
+    updated() {
+      const botLogChatContainer = document.getElementById('bot-log-chat-container');
+      botLogChatContainer.scrollTop = botLogChatContainer.scrollHeight;
     }
   };
 
@@ -44,6 +49,6 @@
 #bot-log-chat-container {
   border: 1px solid;
   height: 600px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 </style>

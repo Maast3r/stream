@@ -41,7 +41,6 @@ export function getCurrentTrack():any {
       url: response.item.external_urls.spotify
     };
   }).catch((error: any) => {
-    console.log(error);
     eventEmitter.emit('newBotLog', error);
     return refreshAccessToken().then(getCurrentTrack);
   });

@@ -29,21 +29,9 @@
       BotLog
     },
     data() {
-      return {
-        links: [
-          {
-            name: 'Home',
-            to: '/'
-          },
-          {
-            name: 'Bad Link',
-            to: '/random-bad-url'
-          }
-        ]
-      }
     },
     methods: {
-      authorizeExternals: function() {
+      authorizeExternals() {
         RequestManager.authorizeSpotify();
         RequestManager.authorizeTwitch();
       }

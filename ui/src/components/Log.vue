@@ -1,12 +1,10 @@
 <template>
-  <div class='card'>
-    <div class='card-content'>
-      <div class='content'>
-        {{ message }}
-        <time class='is-size-7'>{{ time }}</time>
-      </div>
+  <article class="message is-primary is-small">
+    <div class="message-body">
+      {{ message }}
+      <time class='is-size-7'>{{ time }}</time>
     </div>
-  </div>
+  </article>
 </template>
 
 <script>
@@ -16,4 +14,7 @@
 </script>
 
 <style scoped>
+.message:not(:last-child) {
+  margin-bottom: 0;
+}
 </style>

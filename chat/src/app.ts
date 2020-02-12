@@ -11,7 +11,11 @@ import * as TwitchThing from './twitch';
 const app = express();
 const appPort = 3000;
 const host = `http://localhost:${appPort}`;
-const corsWhiteList = ['https://localhost:9000'];
+const corsWhiteList = [
+  'https://localhost:9000',
+  'https://maui-95ae3.web.app/#/',
+  'https://maui-95ae3.firebaseapp.com/#/'
+];
 
 const server = app.listen(appPort, () => {
   console.log(`* Server started at ${host}`);
@@ -73,10 +77,7 @@ app.get('/authorize-spotify', (request: any, controllerResponse: any) => {
     response.json()
   ).then((response: any) => {
     SpotifyThing.setTokens(response.access_token, response.refresh_token);
-
-    const log = '* Spotify authorized';
-    eventEmitter.emit('newBotLog', log);
-    console.log(log);
+    eventEmitter.emit('newBotLog',  '* Spotify authorized');
   });
 
   controllerResponse.send('GET authorize-spotify');
@@ -94,22 +95,41 @@ app.get('/spotify', async (request: any, controllerResponse: any) => {
   controllerResponse.send({ url: await SpotifyThing.authorize() });
 });
 
-websocketServer.on('connection', (websocket: any) => {
-  eventEmitter.on('newBotLog', (newLog) => {
-    websocket.send(JSON.stringify({
-      message: newLog,
-      time: new Date().toLocaleTimeString()
-    }));
+function noop() {}
+
+function websocketHeartbeat() {
+  this.alive = true;
+}
+
+// Handle broken websocket connecitons
+setInterval(() => {
+  websocketServer.clients.forEach((client: any) => {
+    if (client.isAlive === false) return client.terminate();
+
+    client.isAlive = false;
+    client.ping(noop);
   });
+}, 30000);
 
-  websocket.on('message', (message: string) => {
-    console.log(`received: ${message}`);
+websocketServer.on('connection', (client: any) => {
+  client.isAlive = true;
 
-    websocket.send(JSON.stringify({
+  client.on('message', (message: string) => {
+    client.send(JSON.stringify({
       message: 'Hey boi, you connected',
       time: new Date().toLocaleTimeString()
     }));
   });
+
+  client.on('pong', websocketHeartbeat);
 });
 
-
+eventEmitter.on('newBotLog', (newLog: any) => {
+  console.log(newLog);
+  websocketServer.clients.forEach((client) => {
+    client.send(JSON.stringify({
+      message: newLog,
+      time: new Date().toLocaleTimeString()
+    }));
+  });
+});
