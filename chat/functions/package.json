@@ -2,22 +2,28 @@
   "name": "stream-stuff",
   "version": "1.0.0",
   "description": "does stream stuff",
-  "main": "./src/index.js",
+  "main": "./dist/app.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Maast3r/stream.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "webpack",
+    "build:simple": "tsc",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "ts-node-dev ./src/app.ts"
   },
   "author": "maast3r",
   "license": "ISC",
+  "engines": {
+    "node": "12"
+  },
   "dependencies": {
     "@mixer/client-node": "^3.5.0",
     "@mixer/shortcode-oauth": "^1.1.0",
     "express": "^4.17.1",
+    "firebase-admin": "^8.6.0",
+    "firebase-functions": "^3.3.0",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "open": "^7.0.2",
@@ -34,9 +40,14 @@
     "@types/tmi.js": "^1.4.0",
     "@types/ws": "^6.0.4",
     "bufferutil": "^4.0.1",
+    "firebase-functions-test": "^0.1.6",
+    "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
     "ts-node-dev": "^1.0.0-pre.44",
     "tslint": "^5.20.1",
-    "utf-8-validate": "^5.0.2"
+    "utf-8-validate": "^5.0.2",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
   }
 }

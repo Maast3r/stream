@@ -2,11 +2,11 @@ import _ from 'lodash';
 import fetch from 'node-fetch';
 import URLSearchParams from 'url-search-params';
 
-import { eventEmitter } from './app';
+import { eventEmitter, host } from './app';
 
 const endpoint = 'https://api.spotify.com/v1/me';
 const playerEndpoint = `${endpoint}/player`;
-const redirectUri = 'http://localhost:3000/authorize-spotify';
+export const redirectUri = `${host}/authorize/spotify/redirect`;
 const scopes = 'user-read-currently-playing';
 
 export const clientId = process.env.SPOTIFY_CLIENT_ID;
@@ -27,7 +27,7 @@ export function getCurrentTrack():any {
   }).then((response: any) =>
     response.json()
   ).then((response: any) => {
-    const artists = _.reduce(response.item.artists, (artistsAccumulator: string, artist: any) => {
+    const artists = _.reduce(_.get(response, 'item.artists'), (artistsAccumulator: string, artist: any) => {
       if (artistsAccumulator === '') {
         return artist.name;
       } else {
@@ -42,7 +42,7 @@ export function getCurrentTrack():any {
     };
   }).catch((error: any) => {
     eventEmitter.emit('newBotLog', error);
-    return refreshAccessToken().then(getCurrentTrack);
+    // return refreshAccessToken().then(getCurrentTrack);
   });
 }
 
@@ -64,7 +64,7 @@ function refreshAccessToken() {
     }
   ).then((response: any) => {
     accessToken = response.access_token;
-    console.log('* Spotify access token refreshed');
+    eventEmitter.emit('newBotLog', '* Spotify access token refreshed');
   });
 }
 
@@ -73,7 +73,7 @@ export function authorize() {
     'https://accounts.spotify.com/authorize' +
     `?client_id=${clientId}` +
     '&response_type=code' +
-    `&redirect_uri=${redirectUri}` +
+    `&redirect_uri=${host}/authorize/spotify/redirect` +
     `&scope=${scopes}`
   ).then((response: any) => response.url);
 }

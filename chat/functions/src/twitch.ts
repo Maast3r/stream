@@ -2,7 +2,7 @@ import _ from 'lodash';
 import fetch from 'node-fetch';
 import tmi from 'tmi.js';
 
-import { eventEmitter } from './app';
+import { eventEmitter, host } from './app';
 import * as SpotifyThing from './spotify';
 
 let accessToken: string;
@@ -22,8 +22,8 @@ export const clientId = process.env.TWITCH_CLIENT_ID;
 export const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 const client = new (tmi.client as any)(opts);
 const endpoint = 'https://api.twitch.tv/helix';
-const redirectUri = 'http://localhost:3000/authorize-twitch';
 const scopes = 'clips:edit';
+
 
 const commands:any = {
   '!clipit': createClip,
@@ -94,7 +94,7 @@ export function authorize() {
   return fetch(
     'https://id.twitch.tv/oauth2/authorize' +
     `?client_id=${clientId}` +
-    `&redirect_uri=${redirectUri}` +
+    `&redirect_uri=${host}/authorize/twitch/redirect` +
     '&response_type=code' +
     `&scope=${scopes}`
   ).then((response: any) => response.url);

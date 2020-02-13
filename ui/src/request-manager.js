@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const endpoint = 'http://localhost:3000';
+const endpoint = 'http://localhost:3001';
 
 function getHeaders() {
   return {
@@ -8,7 +8,7 @@ function getHeaders() {
 }
 
 export function authorizeTwitch() {
-  return fetch(`${endpoint}/twitch`, {
+  return fetch(`${endpoint}/authorize/twitch`, {
     headers: getHeaders(),
   }).then((response) => response.json()).then((response) => {
     window.open(response.url, '_blank');
@@ -17,7 +17,7 @@ export function authorizeTwitch() {
 }
 
 export function authorizeSpotify() {
-  return fetch(`${endpoint}/spotify`, {
+  return fetch(`${endpoint}/authorize/spotify`, {
     headers: getHeaders(),
   }).then((response) => response.json()).then((response) => {
     window.open(response.url, '_blank');
