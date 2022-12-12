@@ -21,7 +21,7 @@
   "dependencies": {
     "@mixer/client-node": "^3.5.0",
     "@mixer/shortcode-oauth": "^1.1.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "firebase-admin": "^8.6.0",
     "firebase-functions": "^3.3.0",
     "lodash": "^4.17.19",
